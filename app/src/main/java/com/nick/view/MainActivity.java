@@ -30,21 +30,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void clickByDynamicStyle(gagaText.DynamicStyle style) {
-        mGagaText.setDynamicStyle(style);
+    private void clickByDynamicStyle(int style) {
+        mGagaText.setStyle(style);
         mGagaText.start();
     }
 
     public void OnClick(View view) {
         switch (view.getId()) {
             case R.id.btn1:
-                clickByDynamicStyle(gagaText.DynamicStyle.NORMAL);
+                clickByDynamicStyle(gagaText.STYLE_NORMAL);
                 break;
             case R.id.btn2:
-                clickByDynamicStyle(gagaText.DynamicStyle.TYPEWRITING);
+                clickByDynamicStyle(gagaText.STYLE_TYPEWRITING);
                 break;
             case R.id.btn3:
-                clickByDynamicStyle(gagaText.DynamicStyle.CHANGE_COLOR);
+                clickByDynamicStyle(gagaText.STYLE_CHANGE_COLOR);
                 break;
         }
     }

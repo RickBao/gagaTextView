@@ -19,6 +19,12 @@ import org.jetbrains.annotations.Nullable;
 @SuppressLint("AppCompatCustomView")
 public class gagaText extends TextView {
 
+    public static final int STYLE_NORMAL = 0;
+    public static final int STYLE_TYPEWRITING = 1;
+    public static final int STYLE_CHANGE_COLOR = 2;
+
+    private int mCurrentStyle = 0;
+
     private int mDuration = 200;
 
     private boolean mIsStart;
@@ -30,29 +36,6 @@ public class gagaText extends TextView {
     private int mSelectedColor = 0xffff00ff;
 
     private OnDynamicListener mOnDynamicListener;
-
-    private DynamicStyle mDynamicStyle = DynamicStyle.NORMAL;
-
-    public enum DynamicStyle {
-        NORMAL(0),
-        TYPEWRITING(1),
-        CHANGE_COLOR(2);
-
-        private int mValue;
-        DynamicStyle(int value) {
-            this.mValue = value;
-        }
-
-        private static DynamicStyle getFromInt(int value) {
-            for (DynamicStyle style : DynamicStyle.values()) {
-                if (style.mValue == value) {
-                    return style;
-                }
-            }
-
-            return DynamicStyle.NORMAL;
-        }
-    }
 
 
     public gagaText(Context context) {
@@ -73,7 +56,6 @@ public class gagaText extends TextView {
         mText = array.getText(R.styleable.gagaTextView_dynamicText);
         mDuration = array.getInt(R.styleable.gagaTextView_duration, mDuration);
         mSelectedColor = array.getColor(R.styleable.gagaTextView_selectedColor, mSelectedColor);
-        mDynamicStyle = DynamicStyle.getFromInt(array.getInt(R.styleable.gagaTextView_dynamicStyle, 0));
         array.recycle();
     }
 
@@ -102,18 +84,23 @@ public class gagaText extends TextView {
     private Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
-            if (DynamicStyle.TYPEWRITING == mDynamicStyle) {
-                setText(mText.subSequence(0, mPosition));
-            } else if (DynamicStyle.CHANGE_COLOR == mDynamicStyle) {
-                setChangeColorText(mPosition);
-            } else {
-                setText(mText);
-                mIsStart = false;
-                if (mOnDynamicListener != null) {
-                    mOnDynamicListener.onCompile();
-                }
-                return;
+
+            switch (mCurrentStyle) {
+                case STYLE_NORMAL:
+                    setText(mText);
+                    mIsStart = false;
+                    if (mOnDynamicListener != null) {
+                        mOnDynamicListener.onCompile();
+                    }
+                    return;
+                case STYLE_TYPEWRITING:
+                    setText(mText.subSequence(0, mPosition));
+                    break;
+                case STYLE_CHANGE_COLOR:
+                    setChangeColorText(mPosition);
+                    break;
             }
+
 
             if (mPosition < mText.length()) {
                 if (mOnDynamicListener != null) {
@@ -139,7 +126,7 @@ public class gagaText extends TextView {
 
     private void setChangeColorText(int position) {
         SpannableString spannableString = new SpannableString(mText);
-        spannableString.setSpan(new ForegroundColorSpan(mSelectedColor), 0, mPosition, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(new ForegroundColorSpan(mSelectedColor), 0, position, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         setText(spannableString);
     }
 
@@ -163,12 +150,12 @@ public class gagaText extends TextView {
         return mDuration;
     }
 
-    public DynamicStyle getDynamicStyle() {
-        return mDynamicStyle;
+    public int getStle() {
+        return mCurrentStyle;
     }
 
-    public void setDynamicStyle(DynamicStyle dynamicStyle) {
-        this.mDynamicStyle = dynamicStyle;
+    public void setStyle(int style) {
+        mCurrentStyle = style;
     }
 
     public void setOnDynamicListener(OnDynamicListener listener) {
